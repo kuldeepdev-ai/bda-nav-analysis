@@ -7,7 +7,7 @@ st.set_page_config(page_title="NAV Analysis", layout="wide")
 st.title("📊 Mutual Fund NAV Analysis Dashboard")
 
 # Load data
-data = pd.read_csv("https://raw.githubusercontent.com/yourusername/bda-nav-analysis/main/mutual_fund_nav.csv")
+data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
 data['Year'] = pd.to_datetime(data['Year'], dayfirst=True)
 data = data.sort_values('Year')
 
