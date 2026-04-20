@@ -76,35 +76,43 @@ with col2:
 st.markdown("---")
 
 # -------------------- NAV CHECKER --------------------
-st.subheader("🧠 Price Category Checker")
+st.subheader("🧠 Price Filter (Interactive)")
 
-value = st.slider("Select Price Value", 0, 5000, 1000)
+value = st.slider("Filter Price Above", 0, 5000, 1000)
 
-if value > 2000:
-    st.success("High Value 💰")
-elif value > 1000:
-    st.warning("Moderate Value ⚠")
-else:
-    st.info("Low Value 📉")
+filtered_by_value = filtered_data[filtered_data['AAPL.Close'] >= value]
 
-st.markdown("---")
+st.write(f"Showing {len(filtered_by_value)} records above {value}")
 
+# Show updated graph
+fig, ax = plt.subplots(figsize=(6,3))
+ax.plot(filtered_by_value['Date'], filtered_by_value['AAPL.Close'])
+st.pyplot(fig)
 # -------------------- FORECAST --------------------
 st.subheader("🔮 Price Forecast")
 
 if st.button("Generate Forecast"):
 
-    # Fix: use Date instead of Year
+    # Set index
     temp = filtered_data.set_index('Date')
 
-    # Monthly resampling (correct way)
-    temp = temp.resample('ME').mean().ffill()
+    # KEEP ONLY NUMERIC COLUMN (VERY IMPORTANT)
+    temp = temp[['AAPL.Close']]
 
+    # Resample monthly
+    temp = temp.resample('ME').mean()
+
+    # Fill missing values
+    temp = temp.ffill()
+
+    # Model
     model = ExponentialSmoothing(temp['AAPL.Close'], trend='add')
     fit = model.fit()
 
+    # Forecast next 12 months
     forecast = fit.forecast(12)
 
+    # Plot
     fig3, ax3 = plt.subplots(figsize=(8, 4))
     ax3.plot(temp['AAPL.Close'], label="Actual")
     ax3.plot(forecast, label="Forecast", linestyle='dashed')
@@ -113,6 +121,5 @@ if st.button("Generate Forecast"):
     st.pyplot(fig3)
 
 st.markdown("---")
-
 # -------------------- FOOTER --------------------
 st.caption("Developed for BDA Course Project 🚀")
