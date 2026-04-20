@@ -9,7 +9,7 @@ st.title("📊 Mutual Fund NAV Analysis Dashboard")
 # Load data
 data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
 data['Date'] = pd.to_datetime(data['Date'])
-data = data.sort_values('Year')
+data = data.sort_values('Date')
 
 # Sidebar filters
 st.sidebar.header("Filters")
