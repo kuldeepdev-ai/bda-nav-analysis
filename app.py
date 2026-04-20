@@ -46,11 +46,13 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📈 Price Trend")
+
     fig, ax = plt.subplots(figsize=(5, 3))
-   ax.plot(filtered_data['Date'], filtered_data['AAPL.Close'])
-ax.tick_params(axis='x', rotation=45)
-fig.autofmt_xdate()
+    ax.plot(filtered_data['Date'], filtered_data['AAPL.Close'])
+    ax.tick_params(axis='x', rotation=45)
+    fig.autofmt_xdate()
     ax.grid(True)
+
     st.pyplot(fig)
 
 with col2:
