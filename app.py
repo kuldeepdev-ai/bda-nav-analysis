@@ -28,20 +28,20 @@ st.dataframe(filtered_data.head())
 st.subheader("📌 Key Insights")
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Average NAV", round(filtered_data['NAV'].mean(), 2))
-col2.metric("Max NAV", round(filtered_data['NAV'].max(), 2))
-col3.metric("Min NAV", round(filtered_data['NAV'].min(), 2))
+col1.metric("Average Price", round(filtered_data['AAPL.Close'].mean(), 2))
+col2.metric("Max NAV", round(filtered_data['AAPL.Close'].max(), 2))
+col3.metric("Min NAV", round(filtered_data['AAPL.Close'].min(), 2))
 
 # Line chart
 st.subheader("📈 NAV Trend Over Time")
 fig, ax = plt.subplots()
-ax.plot(filtered_data['Date'], filtered_data['NAV'])
+ax.plot(filtered_data['Date'], filtered_data['AAPL.Close'])
 st.pyplot(fig)
 
 # Histogram
 st.subheader("📊 NAV Distribution")
 fig2, ax2 = plt.subplots()
-ax2.hist(filtered_data['NAV'], bins=30)
+ax2.hist(filtered_data['AAPL.Close'], bins=30)
 st.pyplot(fig2)
 
 # Interactive input
@@ -63,13 +63,13 @@ if st.button("Generate Forecast"):
     temp = filtered_data.set_index('Year')
     temp = temp.resample('ME').mean().ffill()
 
-    model = ExponentialSmoothing(temp['NAV'], trend='add')
+    model = ExponentialSmoothing(temp['AAPL.Close'], trend='add')
     fit = model.fit()
 
     forecast = fit.forecast(12)
 
     fig3, ax3 = plt.subplots()
-    ax3.plot(temp['NAV'], label="Actual")
+    ax3.plot(temp['AAPL.Close'], label="Actual")
     ax3.plot(forecast, label="Forecast", linestyle='dashed')
     ax3.legend()
     st.pyplot(fig3)
