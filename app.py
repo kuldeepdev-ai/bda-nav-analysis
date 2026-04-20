@@ -1,3 +1,4 @@
+import matplotlib.dates as mdates
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,7 +31,12 @@ filtered_data = data[
     (data['Date'] <= pd.to_datetime(max_date))
 ]
 
-# -------------------- TOP METRICS --------------------
+# -------------------- EMPTY CHECK --------------------
+if filtered_data.empty:
+    st.error("No data available for selected range")
+    st.stop()
+
+# -------------------- METRICS --------------------
 st.subheader("📊 Key Insights")
 
 col1, col2, col3 = st.columns(3)
@@ -41,7 +47,14 @@ col3.metric("Min Price", round(filtered_data['AAPL.Close'].min(), 2))
 
 st.markdown("---")
 
-# -------------------- MAIN CHARTS (SIDE BY SIDE) --------------------
+# -------------------- FUNCTION FOR CLEAN GRAPHS --------------------
+def format_date_axis(ax):
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
+    ax.tick_params(axis='x', rotation=45)
+    ax.grid(True)
+
+# -------------------- MAIN CHARTS --------------------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -49,22 +62,26 @@ with col1:
 
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.plot(filtered_data['Date'], filtered_data['AAPL.Close'])
-    ax.tick_params(axis='x', rotation=45)
-    fig.autofmt_xdate()
-    ax.grid(True)
+    format_date_axis(ax)
+    fig.tight_layout()
 
     st.pyplot(fig)
 
 with col2:
     st.subheader("📊 Distribution")
+
     fig2, ax2 = plt.subplots(figsize=(5, 3))
     ax2.hist(filtered_data['AAPL.Close'], bins=25)
+    ax2.set_xlabel("Price")
+    ax2.set_ylabel("Frequency")
     ax2.grid(True)
+    fig2.tight_layout()
+
     st.pyplot(fig2)
 
 st.markdown("---")
 
-# -------------------- FILTER + FORECAST SIDE BY SIDE --------------------
+# -------------------- FILTER + FORECAST --------------------
 col1, col2 = st.columns(2)
 
 # 🧠 FILTER
@@ -88,7 +105,9 @@ with col1:
     if not filtered_by_value.empty:
         fig3, ax3 = plt.subplots(figsize=(5, 3))
         ax3.plot(filtered_by_value['Date'], filtered_by_value['AAPL.Close'])
-        ax3.grid(True)
+        format_date_axis(ax3)
+        fig3.tight_layout()
+
         st.pyplot(fig3)
     else:
         st.warning("No data in this range")
@@ -102,18 +121,23 @@ with col2:
         temp = filtered_data.set_index('Date')
         temp = temp[['AAPL.Close']].resample('ME').mean().ffill()
 
-        model = ExponentialSmoothing(temp['AAPL.Close'], trend='add')
-        fit = model.fit()
+        if len(temp) < 5:
+            st.warning("Not enough data to forecast")
+        else:
+            model = ExponentialSmoothing(temp['AAPL.Close'], trend='add')
+            fit = model.fit()
 
-        forecast = fit.forecast(12)
+            forecast = fit.forecast(12)
 
-        fig4, ax4 = plt.subplots(figsize=(5, 3))
-        ax4.plot(temp['AAPL.Close'], label="Actual")
-        ax4.plot(forecast, linestyle='dashed', label="Forecast")
-        ax4.legend()
-        ax4.grid(True)
+            fig4, ax4 = plt.subplots(figsize=(5, 3))
+            ax4.plot(temp['AAPL.Close'], label="Actual")
+            ax4.plot(forecast, linestyle='dashed', label="Forecast")
 
-        st.pyplot(fig4)
+            format_date_axis(ax4)
+            ax4.legend()
+            fig4.tight_layout()
+
+            st.pyplot(fig4)
 
 st.markdown("---")
 
