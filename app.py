@@ -14,11 +14,11 @@ data = data.sort_values('Year')
 # Sidebar filters
 st.sidebar.header("Filters")
 
-min_date = st.sidebar.date_input("Start Date", data['Year'].min())
-max_date = st.sidebar.date_input("End Date", data['Year'].max())
+min_date = st.sidebar.date_input("Start Date", data['Date'].min())
+max_date = st.sidebar.date_input("End Date", data['Date'].max())
 
-filtered_data = data[(data['Year'] >= pd.to_datetime(min_date)) & 
-                     (data['Year'] <= pd.to_datetime(max_date))]
+filtered_data = data[(data['Date'] >= pd.to_datetime(min_date)) & 
+                     (data['Date'] <= pd.to_datetime(max_date))]
 
 # Show dataset
 st.subheader("📁 Dataset Preview")
@@ -35,7 +35,7 @@ col3.metric("Min NAV", round(filtered_data['NAV'].min(), 2))
 # Line chart
 st.subheader("📈 NAV Trend Over Time")
 fig, ax = plt.subplots()
-ax.plot(filtered_data['Year'], filtered_data['NAV'])
+ax.plot(filtered_data['Date'], filtered_data['NAV'])
 st.pyplot(fig)
 
 # Histogram
